@@ -2,28 +2,13 @@
 const W=1243,H=1756,PDF_W=595.28,PDF_H=841.89,MAX_OBS_LINES=26;
 const OBS_LINE_YS=[553,584,615,647,678,710,741,772,804,835,867,898,930,961,992,1024,1055,1087,1118,1150,1181,1212,1244,1275,1307,1338];
 const $=id=>document.getElementById(id),canvas=$('previewCanvas'),ctx=canvas.getContext('2d'),template=new Image();template.src='modelo.png';
-const ids=['ordem','docAcionador','tripulacao','dataSaida','dataChegada','horaSaida','horaChegada','totalHoras','observacoes','local','dataRelatorio','cmtAnv','despacho'];const val=id=>$(id).value.trim();
+const ids=['ordem','docAcionador','tripulacao','dataSaida','dataChegada','horaSaida','horaChegada','totalHoras','observacoes','local','dataRelatorio'];const val=id=>$(id).value.trim();
 function setPdfFont(size=18,weight='400'){ctx.font=`${weight} ${size}px "Times New Roman",Times,serif`;ctx.fillStyle='#000';ctx.textBaseline='alphabetic'}
 function wrapText(text,maxWidth){const paras=String(text||'').replace(/\r/g,'').split('\n'),lines=[];for(const p of paras){if(p.trim()===''){lines.push('');continue}const words=p.trim().split(/\s+/);let line='';for(const word of words){const cand=line?`${line} ${word}`:word;if(ctx.measureText(cand).width<=maxWidth)line=cand;else{if(line)lines.push(line);line=word}}if(line)lines.push(line)}return lines}
 function drawSingle(text,x,lineY,maxWidth,fontSize=18,align='center',minSize=12){if(!text)return;let size=fontSize;setPdfFont(size);ctx.textAlign=align;while(size>minSize&&ctx.measureText(text).width>maxWidth){size-=.5;setPdfFont(size);ctx.textAlign=align}const px=align==='center'?x+maxWidth/2:align==='right'?x+maxWidth:x;ctx.fillText(text,px,lineY-5);ctx.textAlign='left'}
-function splitPair(text){
- const parts=String(text||'').trim().split(/\D+/).filter(Boolean);
- if(parts.length>=2)return [parts[0].slice(-2),parts[1].slice(0,2)];
- const digits=String(text||'').replace(/\D/g,'');
- if(digits.length>=4)return [digits.slice(0,2),digits.slice(2,4)];
- return [parts[0]||digits,''];
-}
-function drawPair(text,x1,w1,x2,w2,lineY,fontSize=17){
- const [a,b]=splitPair(text);
- if(a)drawSingle(a,x1,lineY,w1,fontSize,'center',fontSize);
- if(b)drawSingle(b,x2,lineY,w2,fontSize,'center',fontSize);
-}
-function drawPreview(){if(!template.complete)return;ctx.clearRect(0,0,W,H);ctx.drawImage(template,0,0,W,H);
- drawSingle(val('ordem'),322,253,100,18,'center');drawSingle(val('docAcionador'),933,253,226,18,'center');drawSingle(val('tripulacao'),224,322,951,18,'left',11);
- drawPair(val('dataSaida'),59,42,107,41,449,17);drawPair(val('dataChegada'),213,42,261,41,449,17);drawPair(val('horaSaida'),486,52,544,52,449,17);drawPair(val('horaChegada'),613,52,671,52,449,17);drawPair(val('totalHoras'),990,51,1047,52,449,17);
- setPdfFont(18);const obs=wrapText(val('observacoes'),1100);for(let i=0;i<Math.min(obs.length,MAX_OBS_LINES);i++)ctx.fillText(obs[i],67,OBS_LINE_YS[i]-5);
- drawSingle(val('local'),134,1428,219,18,'center');drawPair(val('dataRelatorio'),493,42,541,41,1428,17);drawSingle(val('cmtAnv'),650,1428,459,17,'center');
- setPdfFont(17);const des=wrapText(val('despacho'),500).slice(0,4),ys=[1524,1548,1572,1596];des.forEach((line,i)=>{ctx.textAlign='center';ctx.fillText(line,622,ys[i]-5)});ctx.textAlign='left';updateObservationState()}
+function splitPair(text){const parts=String(text||'').trim().split(/\D+/).filter(Boolean);if(parts.length>=2)return [parts[0].slice(-2),parts[1].slice(0,2)];const digits=String(text||'').replace(/\D/g,'');if(digits.length>=4)return [digits.slice(0,2),digits.slice(2,4)];return [parts[0]||digits,'']}
+function drawPair(text,x1,w1,x2,w2,lineY,fontSize=17){const [a,b]=splitPair(text);if(a)drawSingle(a,x1,lineY,w1,fontSize,'center',fontSize);if(b)drawSingle(b,x2,lineY,w2,fontSize,'center',fontSize)}
+function drawPreview(){if(!template.complete)return;ctx.clearRect(0,0,W,H);ctx.drawImage(template,0,0,W,H);drawSingle(val('ordem'),322,253,100,18,'center');drawSingle(val('docAcionador'),933,253,226,18,'center');drawSingle(val('tripulacao'),224,322,951,18,'left',11);drawPair(val('dataSaida'),59,42,107,41,449,17);drawPair(val('dataChegada'),213,42,261,41,449,17);drawPair(val('horaSaida'),486,52,544,52,449,17);drawPair(val('horaChegada'),613,52,671,52,449,17);drawPair(val('totalHoras'),990,51,1047,52,449,17);setPdfFont(18);const obs=wrapText(val('observacoes'),1100);for(let i=0;i<Math.min(obs.length,MAX_OBS_LINES);i++)ctx.fillText(obs[i],67,OBS_LINE_YS[i]-5);drawSingle(val('local'),134,1428,219,18,'center');drawPair(val('dataRelatorio'),493,42,541,41,1428,17);ctx.textAlign='left';updateObservationState()}
 function updateObservationState(){setPdfFont(18);const lines=wrapText(val('observacoes'),1100),overflow=lines.length>MAX_OBS_LINES;$('obsCounter').textContent=`${lines.length} / ${MAX_OBS_LINES} linhas`;$('obsWarning').classList.toggle('hidden',!overflow);$('generatePdf').disabled=overflow;return !overflow}
 function dataUrlToBytes(url){const b=atob(url.split(',')[1]),out=new Uint8Array(b.length);for(let i=0;i<b.length;i++)out[i]=b.charCodeAt(i);return out}const asciiBytes=s=>new TextEncoder().encode(s);function concatBytes(parts){const total=parts.reduce((s,p)=>s+p.length,0),out=new Uint8Array(total);let off=0;for(const p of parts){out.set(p,off);off+=p.length}return out}
 function buildPdfFromJpeg(jpegBytes,imgW,imgH){const parts=[];let offset=0;const offsets=[0];const push=bytes=>{parts.push(bytes);offset+=bytes.length},pushText=s=>push(asciiBytes(s));const obj=(n,content)=>{offsets[n]=offset;pushText(`${n} 0 obj\n`);for(const p of content)typeof p==='string'?pushText(p):push(p);pushText('\nendobj\n')};push(new Uint8Array([37,80,68,70,45,49,46,52,10,37,226,227,207,211,10]));obj(1,['<< /Type /Catalog /Pages 2 0 R >>']);obj(2,['<< /Type /Pages /Kids [3 0 R] /Count 1 >>']);obj(3,[`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PDF_W} ${PDF_H}] /Resources << /XObject << /Im1 4 0 R >> >> /Contents 5 0 R >>`]);obj(4,[`<< /Type /XObject /Subtype /Image /Width ${imgW} /Height ${imgH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length} >>\nstream\n`,jpegBytes,'\nendstream']);const content=asciiBytes(`q\n${PDF_W} 0 0 ${PDF_H} 0 0 cm\n/Im1 Do\nQ\n`);obj(5,[`<< /Length ${content.length} >>\nstream\n`,content,'endstream']);const xref=offset;pushText('xref\n0 6\n0000000000 65535 f \n');for(let i=1;i<=5;i++)pushText(`${String(offsets[i]).padStart(10,'0')} 00000 n \n`);pushText(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`);return concatBytes(parts)}

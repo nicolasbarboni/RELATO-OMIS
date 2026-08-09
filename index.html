@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1f3a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Relatório Missão">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="styles.css">
+<title>Relatório da Missão 2026</title>
+</head>
+<body>
+<header class="topbar"><div><h1>Relatório da Missão</h1><p>Modelo 2026 - preenchimento e PDF offline</p></div><span id="offlineBadge" class="badge">Offline pronto</span></header>
+<main class="container">
+<section class="card"><h2>Dados da missão</h2>
+<div class="grid two">
+<label>Ordem de Missão nº<input id="ordem" type="text" autocomplete="off" placeholder="Ex.: 123"></label>
+<label>Documento acionador<input id="docAcionador" type="text" autocomplete="off" placeholder="Ex.: DIEx nº 45/1º ETA"></label>
+</div>
+<label>Tripulação<input id="tripulacao" type="text" autocomplete="off" placeholder="Digite a tripulação"></label>
+<div class="grid two">
+<label>Data de saída<input id="dataSaida" type="text" inputmode="numeric" placeholder="DD/MM"></label>
+<label>Data de chegada<input id="dataChegada" type="text" inputmode="numeric" placeholder="DD/MM"></label>
+<label>Hora de saída<input id="horaSaida" type="text" inputmode="numeric" placeholder="HH:MM"></label>
+<label>Hora de chegada<input id="horaChegada" type="text" inputmode="numeric" placeholder="HH:MM"></label>
+</div>
+<label>Total de horas voadas<input id="totalHoras" type="text" inputmode="numeric" placeholder="HH:MM"></label>
+</section>
+<section class="card">
+<div class="section-title-row"><h2>Observações</h2><span id="obsCounter" class="counter">0 / 26 linhas</span></div>
+<textarea id="observacoes" rows="12" placeholder="Digite as observações normalmente. O texto será distribuído automaticamente pelas linhas do relatório."></textarea>
+<p class="hint">Quebras de linha digitadas por você são respeitadas. Palavras não são cortadas no meio.</p>
+<div id="obsWarning" class="warning hidden">O texto ultrapassa as 26 linhas disponíveis. Reduza o conteúdo antes de gerar o PDF.</div>
+</section>
+<section class="card"><h2>Fechamento</h2>
+<div class="grid two"><label>Local<input id="local" type="text" autocomplete="off"></label><label>Data<input id="dataRelatorio" type="text" inputmode="numeric" placeholder="DD/MM"></label></div>
+<label>Comandante da aeronave<input id="cmtAnv" type="text" autocomplete="off" placeholder="Nome para a linha de assinatura"></label>
+<label>Despacho Chefe SOP ETA1<textarea id="despacho" rows="4" placeholder="Opcional"></textarea></label>
+</section>
+<section class="card preview-card"><div class="section-title-row"><h2>Prévia</h2><button id="refreshPreview" class="secondary" type="button">Atualizar prévia</button></div><div class="canvas-wrap"><canvas id="previewCanvas" width="1243" height="1756"></canvas></div></section>
+<div class="actions"><button id="generatePdf" class="primary" type="button">Gerar PDF</button><button id="clearForm" class="ghost" type="button">Limpar campos</button></div><p id="status" class="status" aria-live="polite"></p>
+</main><script src="app.js"></script></body></html>
